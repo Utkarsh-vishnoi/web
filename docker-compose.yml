@@ -1,0 +1,73 @@
+version: "2.1"
+
+services:
+    nginx:
+        build: ./nginx/
+        restart: unless-stopped
+        ports:
+            - 80:80
+            - 443:443
+        volumes:
+            - "${PROJECT_ROOT}:/var/www/html:ro"
+        networks:
+            - server
+            - database
+            - CA
+        depends_on:
+            - php
+            - phpmyadmin
+
+    php:
+        build: ./php/
+        restart: unless-stopped
+        expose:
+            - 9000
+        volumes:
+            - "${PROJECT_ROOT}:/var/www/html"
+        networks:
+            - database
+            - server
+        depends_on:
+            - mysql
+
+    mysql:
+        image: mysql:latest
+        networks:
+            - database
+        volumes:
+            - data:/var/lib/mysql
+        command: --default-authentication-plugin=mysql_native_password
+        restart: unless-stopped
+        environment:
+            MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
+            MYSQL_DATABASE: "${DB_NAME}"
+            MYSQL_USER: "${DB_USERNAME}"
+            MYSQL_PASSWORD: "${DB_PASSWORD}"
+
+    phpmyadmin:
+        image: spacemaniac/docker-phpmyadmin
+        restart: unless-stopped
+        expose:
+            - 80
+            - 443
+        ports:
+            - 8080:80
+            - 8443:443
+        networks:
+            - database
+            - CA
+        depends_on:
+            - mysql
+        environment:
+            PMA_HOST: mysql
+            PMA_ABSOLUTE_URI: "http://docker.ee/phpmyadmin/"
+
+volumes:
+    data:
+
+networks:
+    database:
+    server:
+    CA:
+       external:
+           name: cfssl_default

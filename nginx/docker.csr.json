@@ -1,0 +1,21 @@
+{
+  "request": {
+    "hosts": [
+        "docker.ee",
+        "nginx"
+    ],
+    "CN": "Utkarsh Docker Server",
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": [
+        {
+            "C": "IN",
+            "L": "Jaspur",
+            "OU": "NGINX Docker Server"
+        }
+    ]
+  },
+  "profile": "server"
+}
